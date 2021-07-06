@@ -4,98 +4,16 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/poim1205/asyncapi/asyncapi2"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
-
-type Identifier string
-
-type global struct {
-	asyncapi     string                // validate format #digit#.#digit#.#digit#
-	id           Identifier            // not required
-	info         Info                  // required
-	servers      Servers               // not required
-	channels     Channels              // required
-	components   Components            // not required
-	tags         Tags                  // not required
-	externalDocs ExternalDocumentation // not required
-}
-
-type Info struct {
-	title          string // required
-	version        string // required
-	description    string
-	termsOfService string
-	contact        Contact
-	license        Licence
-}
-
-type Servers struct {
-	servers map[string]Server
-}
-
-type Server struct {
-	url             string // required
-	protocol        string // required
-	protocolVersion string
-	description     string
-	variables       map[string]ServerVariable
-	security        []SecurityRequirement
-	bindings        ServerBindings
-}
-
-type ServerVariable struct {
-	enum        []string
-	myDefault   string
-	description string
-	exemples    []string
-}
-
-type SecurityRequirement struct {
-	name map[string][]string
-}
-
-type ServerBindings struct {
-}
-
-type Channels struct {
-	channels map[string]Channel
-}
-
-type Channel struct {
-	ref         string
-	description string
-	subscribe   Operation
-	publish     Operation
-	parameters  Parameters
-	bindings    ChannelBindings
-}
-
-type Components struct {
-}
-
-type Tags struct {
-}
-
-type ExternalDocumentation struct {
-}
-
-type Contact struct {
-	name  string
-	url   string
-	email string
-}
-
-type Licence struct {
-	name string
-	url  string
-}
 
 func readYamlFile() map[string]interface{} {
 
 	mapAsyncApi := make(map[string]interface{})
 
-	yamlFile, err := ioutil.ReadFile("./test/simple.yaml")
+	yamlFile, err := ioutil.ReadFile("./test/info-servers-variables.yaml")
 	if err != nil {
 		logrus.Fatalf("Error while reading content of yaml file : #%v ", err)
 	}
@@ -111,10 +29,41 @@ func main() {
 
 	mapResult := readYamlFile()
 
-	fmt.Println("First level items")
+	async := asyncapi2.NewAsyncAPI()
 
-	for k := range mapResult {
-		fmt.Println(k)
+	for k, v := range mapResult {
+
+		if k == "asyncapi" {
+			fmt.Printf("Assigning AsyncAPI value %v\n", v)
+			async.Asyncapi = fmt.Sprintf("%v", v)
+		}
+
+		if k == "info" {
+			fmt.Printf("Assigning Info values %v\n", v)
+
+			i := asyncapi2.NewInfo()
+
+			async.Info = i.SetValues(v) // async.Info.Title
+		}
+
+		if k == "servers" {
+			fmt.Printf("Assigning Servers values %v\n", v)
+
+			s := asyncapi2.NewServers()
+			async.Servers = s.SetValues(v)
+			// map[interface {}]interface {}
+			// []interface {}
+		}
+
+		if k == "channels" {
+			fmt.Printf("Assigning Channels values %v\n", v)
+		}
+
+		if k == "components" {
+			fmt.Printf("Assigning Components values %v\n", v)
+		}
 	}
+	//fmt.Printf("%s", async.Info.String())
 
+	fmt.Printf("%v", async.Servers["not"])
 }
