@@ -13,7 +13,7 @@ func readYamlFile() map[string]interface{} {
 
 	mapAsyncApi := make(map[string]interface{})
 
-	yamlFile, err := ioutil.ReadFile("./test/info-servers-variables.yaml")
+	yamlFile, err := ioutil.ReadFile("./test/info-servers.yaml")
 	if err != nil {
 		logrus.Fatalf("Error while reading content of yaml file : #%v ", err)
 	}
@@ -49,8 +49,8 @@ func main() {
 		if k == "servers" {
 			fmt.Printf("Assigning Servers values %v\n", v)
 
-			s := asyncapi2.NewServers()
-			async.Servers = s.SetValues(v)
+			s := asyncapi2.NewServers(v)
+			s.PrintServers()
 			// map[interface {}]interface {}
 			// []interface {}
 		}
@@ -65,5 +65,5 @@ func main() {
 	}
 	//fmt.Printf("%s", async.Info.String())
 
-	fmt.Printf("%v", async.Servers["not"])
+	//fmt.Printf("%v", async.Servers["not"])
 }
