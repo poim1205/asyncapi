@@ -19,12 +19,20 @@ type Message struct {
 	traits        []MessageTrait
 }
 
+func NewMessage() *Message {
+	return &Message{}
+}
+
 func (value *Message) MarshalYAML() ([]byte, error) {
 	return yaml.Marshal(value)
 }
 
 func (value *Message) UnmarshalYAML(data []byte) error {
 	return yaml.Unmarshal(data, value)
+}
+
+func (value *Message) SetValues(v interface{}) *Message {
+	return value
 }
 
 type MessageTrait struct {

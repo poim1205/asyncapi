@@ -13,7 +13,7 @@ func readYamlFile() map[string]interface{} {
 
 	mapAsyncApi := make(map[string]interface{})
 
-	yamlFile, err := ioutil.ReadFile("./test/info-servers.yaml")
+	yamlFile, err := ioutil.ReadFile("./test/info-svr-var-channels.yaml")
 	if err != nil {
 		logrus.Fatalf("Error while reading content of yaml file : #%v ", err)
 	}
@@ -51,12 +51,17 @@ func main() {
 
 			s := asyncapi2.NewServers(v)
 			s.PrintServers()
+			async.Servers = s
 			// map[interface {}]interface {}
 			// []interface {}
 		}
 
 		if k == "channels" {
 			fmt.Printf("Assigning Channels values %v\n", v)
+			c := asyncapi2.NewChannels(v)
+			c.PrintChannels()
+
+			async.Channels = c
 		}
 
 		if k == "components" {
