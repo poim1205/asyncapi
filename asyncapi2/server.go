@@ -2,71 +2,30 @@ package asyncapi2
 
 import (
 	"fmt"
-
-	"gopkg.in/yaml.v2"
 )
 
-type Servers interface {
-	PrintServers()
+type Servers map[string]*Server
+
+func NewServers() Servers {
+	return make(Servers)
 }
 
-type MapServers map[string]*Server
+func (s Servers) SetValues(v interface{}) Servers {
 
-type SliceServers []*Server
-
-func NewServers(v interface{}) Servers {
-	var s Servers
 	switch arrayVal := v.(type) {
 	case map[interface{}]interface{}:
-		ms := make(MapServers, 1)
 		for key, val := range arrayVal {
 			keyString := fmt.Sprintf("%v", key)
-			_, Ok := ms[keyString]
+			_, Ok := s[keyString]
 			if !Ok {
 				ns := NewServer()
 
-				ms[keyString] = ns.SetValues(val)
+				s[keyString] = ns.SetValues(val)
 			}
 		}
-		s = ms
-	case []interface{}:
-		ss := make(SliceServers, 0, 1)
-		for _, val := range arrayVal {
-			ns := NewServer()
-			ss = append(ss, ns.SetValues(val))
-		}
-		s = ss
 	default:
 	}
 	return s
-}
-
-func (ms MapServers) PrintServers() {
-	fmt.Println("Printing mapservers")
-	for k, v := range ms {
-		fmt.Printf("Servers.%s.url : %s\n", k, v.Url)
-		fmt.Printf("Servers.%s.description : %s\n", k, v.Description)
-		fmt.Printf("Servers.%s.protocol : %s\n", k, v.Protocol)
-		fmt.Printf("Servers.%s.protocolVersion : %s\n", k, v.ProtocolVersion)
-	}
-}
-
-func (ss SliceServers) PrintServers() {
-	fmt.Println("Printing sliceservers")
-
-	for _, v := range ss {
-		fmt.Printf("Servers.url : %s\n", v.Url)
-		fmt.Printf("Servers.description : %s\n", v.Description)
-		fmt.Printf("Servers.protocol : %s\n", v.Protocol)
-		fmt.Printf("Servers.protocolVersion : %s\n", v.ProtocolVersion)
-		for svk, svv := range v.Variables {
-			for i, enu := range svv.Enum {
-				fmt.Printf("Servers.variables.%s.enum::val%d : %s\n", svk, i+1, enu)
-			}
-			fmt.Printf("Servers.variables.%s.default : %s\n", svk, svv.Default)
-			fmt.Printf("Servers.variables.%s.description : %s\n", svk, svv.Description)
-		}
-	}
 }
 
 type Server struct {
@@ -75,20 +34,13 @@ type Server struct {
 	ProtocolVersion string
 	Description     string
 	Variables       map[string]*ServerVariable
-	Security        []*SecurityRequirement
-	Bindings        ServerBindings
+	// TODO: Add SecurityRequirements for Server object
+	// Security []*SecurityRequirement
+	Bindings ServerBindings
 }
 
 func NewServer() *Server {
 	return &Server{}
-}
-
-func (value *Server) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *Server) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
 }
 
 func (value *Server) SetValues(v interface{}) *Server {
@@ -125,6 +77,11 @@ func (value *Server) SetValues(v interface{}) *Server {
 				default:
 				}
 			}
+			if keyString == "bindings" {
+				newServerBindings := NewServerBindings()
+
+				value.Bindings = newServerBindings.SetValues(val)
+			}
 		}
 	default:
 	}
@@ -135,7 +92,6 @@ type ServerVariable struct {
 	Enum        []string
 	Default     string
 	Description string
-	//Exemples    []string
 }
 
 func NewServerVariable() *ServerVariable {
@@ -172,27 +128,6 @@ func (value *ServerVariable) SetValues(v interface{}) *ServerVariable {
 	return value
 }
 
-func (value *ServerVariable) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *ServerVariable) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
-}
-
-type SecurityRequirement struct {
-	Name map[string][]string
-}
-
-func (value *SecurityRequirement) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *SecurityRequirement) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
-}
-
-type ServerBindings map[string]ServerBinding
-
-type ServerBinding struct {
-}
+// type SecurityRequirement struct {
+// 	Name map[string][]string
+// }

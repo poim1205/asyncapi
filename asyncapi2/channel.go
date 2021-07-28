@@ -2,58 +2,42 @@ package asyncapi2
 
 import (
 	"fmt"
-
-	"gopkg.in/yaml.v2"
 )
 
 type Channels map[string]*Channel
 
-func NewChannels(v interface{}) Channels {
-	var c Channels
+func NewChannels() Channels {
+	return make(Channels)
+}
+
+func (c Channels) SetValues(v interface{}) Channels {
 	switch arrayVal := v.(type) {
 	case map[interface{}]interface{}:
-		mc := make(Channels, 1)
 		for key, val := range arrayVal {
 			keyString := fmt.Sprintf("%v", key)
-			_, Ok := mc[keyString]
+			_, Ok := c[keyString]
 			if !Ok {
 				nc := NewChannel()
 
-				mc[keyString] = nc.SetValues(val)
+				c[keyString] = nc.SetValues(val)
 			}
 		}
-		c = mc
 	default:
 	}
 	return c
-}
-
-func (c Channels) PrintChannels() {
-	fmt.Println("Print Channels")
-	for k, v := range c {
-		fmt.Printf("Channels.%s.subscribe.ref: %s\n", k, v.Subscribe.Ref)
-	}
 }
 
 type Channel struct {
 	Ref         string
 	Description string
 	Subscribe   *Operation
-	Publish     Operation
+	Publish     *Operation
 	Parameters  Parameters
 	Bindings    ChannelBindings
 }
 
 func NewChannel() *Channel {
 	return &Channel{}
-}
-
-func (value *Channel) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *Channel) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
 }
 
 func (value *Channel) SetValues(v interface{}) *Channel {
@@ -68,32 +52,22 @@ func (value *Channel) SetValues(v interface{}) *Channel {
 				value.Description = fmt.Sprintf("%v", val)
 			}
 			if keyString == "subscribe" {
-				fmt.Printf("Channel.subscribe.Type: %T\n", val)
-				fmt.Printf("Channel.subscribe.Value: %v\n", val)
+				newOperation := NewOperation()
+				value.Subscribe = newOperation.SetValues(val)
+			}
+			if keyString == "publish" {
 
-				o := NewOperation(val)
-				value.Subscribe = o
+				newOperation := NewOperation()
+				value.Publish = newOperation.SetValues(val)
+			}
+			if keyString == "parameters" {
 
-				// switch subscribeVal := val.(type) {
-				// case map[interface{}]interface{}:
-
-				// 	for subKey, subVal := range subscribeVal {
-				// 		keySubVar := fmt.Sprintf("%v", subKey)
-				// 		nope := NewOperation()
-
-				// 	}
-				// 	value.Subscribe = sv
-				// default:
-				// }
+				p := NewParameters()
+				value.Parameters = p.SetValues(val)
 			}
 		}
 	default:
 	}
 
 	return value
-}
-
-type ChannelBindings map[string]ChannelBinding
-
-type ChannelBinding struct {
 }

@@ -2,14 +2,16 @@ package asyncapi2
 
 import (
 	"fmt"
-
-	"gopkg.in/yaml.v2"
 )
 
 type Tags []*Tag
 
-func NewTags(v interface{}) Tags {
-	t := make(Tags, 1)
+func NewTags() Tags {
+	t := make(Tags, 0)
+	return t
+}
+
+func (t Tags) SetValues(v interface{}) Tags {
 	switch arrayVal := v.(type) {
 	case []interface{}:
 		for _, val := range arrayVal {
@@ -21,6 +23,13 @@ func NewTags(v interface{}) Tags {
 	return t
 }
 
+func (ts Tags) PrintTags(indentString string) {
+	fmt.Printf("%stags:\n", indentString)
+	for _, t := range ts {
+		t.PrintTag(indentString)
+	}
+}
+
 type Tag struct {
 	Name         string
 	Description  string
@@ -29,14 +38,6 @@ type Tag struct {
 
 func NewTag() *Tag {
 	return &Tag{}
-}
-
-func (value *Tag) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *Tag) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
 }
 
 func (value *Tag) SetValues(v interface{}) *Tag {
@@ -51,10 +52,19 @@ func (value *Tag) SetValues(v interface{}) *Tag {
 				value.Description = fmt.Sprintf("%v", val)
 			}
 			if keyString == "externalDocs" {
-				value.ExternalDocs = NewExternalDocs(val)
+				newExternalDocs := NewExternalDocs()
+				value.ExternalDocs = newExternalDocs.SetValues(val)
 			}
 		}
 	default:
 	}
 	return value
+}
+
+func (value *Tag) PrintTag(indentString string) {
+	fmt.Printf("%s- name: %s", indentString, value.Name)
+	fmt.Printf("%s%sdescription: %s", indentString, INDENT, value.Description)
+	// if value.ExternalDocs != nil {
+	// 	value.ExternalDocs.PrintExternalDocs(fmt.Sprintf("%s%s", indentString, INDENT))
+	// }
 }

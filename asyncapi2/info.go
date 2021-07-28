@@ -2,8 +2,6 @@ package asyncapi2
 
 import (
 	"fmt"
-
-	"gopkg.in/yaml.v2"
 )
 
 type Info struct {
@@ -17,14 +15,6 @@ type Info struct {
 
 func NewInfo() *Info {
 	return &Info{}
-}
-
-func (value *Info) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *Info) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
 }
 
 func (value *Info) SetValues(v interface{}) *Info {
@@ -60,10 +50,6 @@ func (value *Info) SetValues(v interface{}) *Info {
 	return value
 }
 
-func (value *Info) String() string {
-	return fmt.Sprintf("Info.Title : %s\n Info.Description : %s\n Info.Version : %s\n Info.TermsOfService : %s\n %s %s", value.Title, value.Description, value.Version, value.TermsOfService, value.Contact.String(), value.License.String())
-}
-
 type Contact struct {
 	Name  string
 	Url   string
@@ -97,18 +83,6 @@ func (value *Contact) SetValues(v interface{}) *Contact {
 	return value
 }
 
-func (value *Contact) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *Contact) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
-}
-
-func (value *Contact) String() string {
-	return fmt.Sprintf("Info.Contact.Name : %s\n Info.Contact.Url : %s\n Info.Contact.Email : %s\n", value.Name, value.Url, value.Email)
-}
-
 type License struct {
 	Name string
 	Url  string
@@ -135,16 +109,4 @@ func (value *License) SetValues(v interface{}) *License {
 	}
 
 	return value
-}
-
-func (value *License) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(value)
-}
-
-func (value *License) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, value)
-}
-
-func (value *License) String() string {
-	return fmt.Sprintf("Info.License.Name : %s\n Info.License.Url : %s\n", value.Name, value.Url)
 }
