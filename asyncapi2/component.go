@@ -10,6 +10,8 @@ type Components struct {
 	CorrelationIds    map[string]*CorrelationID
 	OperationTraits   map[string]*OperationTrait
 	MessageTraits     map[string]*MessageTrait
+	ServerBindings    ServerBindings
+	ChannelBindings   ChannelBindings
 	OperationBindings OperationBindings
 	MessageBindings   MessageBindings
 }
@@ -55,23 +57,22 @@ func (c *Components) SetValues(v interface{}) *Components {
 				default:
 				}
 			}
-			// TODO: fix security schemes
-			// if keyStr == "securitySchemes" {
-			// 	switch mapSecuritySchemes := val.(type) {
-			// 	case map[interface{}]interface{}:
-			// 		secSchemeMap := make(map[string]*SecurityScheme)
-			// 		for key, mapval := range mapSecuritySchemes {
-			// 			keySecSchemeStr := fmt.Sprintf("%v", key)
-			// 			_, Ok := secSchemeMap[keySecSchemeStr]
-			// 			if !Ok {
-			// 				secScheme := NewSecurityScheme()
-			// 				secSchemeMap[keySecSchemeStr] = secScheme.SetValues(mapval)
-			// 			}
-			// 		}
-			// 		c.SecuritySchemes = secSchemeMap
-			// 	default:
-			// 	}
-			// }
+			if keyStr == "securitySchemes" {
+				switch mapSecuritySchemes := val.(type) {
+				case map[interface{}]interface{}:
+					secSchemeMap := make(map[string]*SecurityScheme)
+					for key, mapval := range mapSecuritySchemes {
+						keySecSchemeStr := fmt.Sprintf("%v", key)
+						_, Ok := secSchemeMap[keySecSchemeStr]
+						if !Ok {
+							secScheme := NewSecurityScheme()
+							secSchemeMap[keySecSchemeStr] = secScheme.SetValues(mapval)
+						}
+					}
+					c.SecuritySchemes = secSchemeMap
+				default:
+				}
+			}
 			if keyStr == "parameters" {
 				switch mapParameters := val.(type) {
 				case map[interface{}]interface{}:
@@ -135,6 +136,14 @@ func (c *Components) SetValues(v interface{}) *Components {
 					c.MessageTraits = messTraitsMap
 				default:
 				}
+			}
+			if keyStr == "serverBindings" {
+				newServerBindings := NewServerBindings()
+				c.ServerBindings = newServerBindings.SetValues(val)
+			}
+			if keyStr == "channelBindings" {
+				newChannelBindings := NewChannelBindings()
+				c.ChannelBindings = newChannelBindings.SetValues(val)
 			}
 			if keyStr == "operationBindings" {
 				newOperationBindings := NewOperationBindings()
@@ -270,15 +279,17 @@ func (flow *OAuthFlow) SetValues(v interface{}) *OAuthFlow {
 			if keyStr == "scopes" {
 				switch mapScope := val.(type) {
 				case map[interface{}]interface{}:
+					mapFlowScope := make(map[string]string)
 					for keyScope, valScope := range mapScope {
 						keyScopeStr := fmt.Sprintf("%v", keyScope)
 
-						_, Ok := flow.Scopes[keyScopeStr]
+						_, Ok := mapFlowScope[keyScopeStr]
 
 						if !Ok {
-							flow.Scopes[keyScopeStr] = fmt.Sprintf("%v", valScope)
+							mapFlowScope[keyScopeStr] = fmt.Sprintf("%v", valScope)
 						}
 					}
+					flow.Scopes = mapFlowScope
 				}
 			}
 		}
