@@ -39,11 +39,17 @@ var _ = Describe("Server", func() {
     description: Staging server
     protocol: amqp
     protocolVersion: 0.9.1
+    security:
+      user_pass: []
   production:
     url: api.gigantic-server.com
     description: Production server
     protocol: amqp
-    protocolVersion: 0.9.1`)
+    protocolVersion: 0.9.1
+    security:
+      petstore_auth:
+        - write:pets
+        - read:pets`)
 
 			err := yaml.Unmarshal(yamlServersByte, &mapServerInterface)
 			Expect(err).ShouldNot(HaveOccurred())
@@ -99,9 +105,19 @@ var _ = Describe("Server", func() {
 				servDevelopment, _ := mapServers["development"]
 				Expect(len(servDevelopment.Variables["port"].Enum)).Should(Equal(2))
 			})
-			It("should return an default `v2` for the variable `basePath` for server `development`", func() {
+			It("should return a default `v2` for the variable `basePath` for server `development`", func() {
 				servDevelopment, _ := mapServers["development"]
 				Expect(servDevelopment.Variables["basePath"].Default).Should(Equal("v2"))
+			})
+			It("should return a security requirement for the `staging` environment named `user_name`", func() {
+				servStaging, _ := mapServers["staging"]
+				_, Ok := servStaging.Security["user_pass"]
+				Expect(Ok).Should(Equal(true))
+			})
+			It("should return a security requirement for the `production` environment named `petstore_auth` with value of `write:pets`", func() {
+				servProduction, _ := mapServers["production"]
+				secReq, _ := servProduction.Security["petstore_auth"]
+				Expect(secReq[0]).Should(Equal("write:pets"))
 			})
 		})
 	})

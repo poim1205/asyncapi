@@ -35,7 +35,7 @@ type Server struct {
 	Description     string
 	Variables       map[string]*ServerVariable
 	// TODO: Add SecurityRequirements for Server object
-	// Security []*SecurityRequirement
+	Security map[string][]string
 	Bindings ServerBindings
 }
 
@@ -63,7 +63,7 @@ func (value *Server) SetValues(v interface{}) *Server {
 			if keyString == "variables" {
 				switch variablesVal := val.(type) {
 				case map[interface{}]interface{}:
-					msv := make(map[string]*ServerVariable, 1)
+					msv := make(map[string]*ServerVariable)
 					for varKey, varVal := range variablesVal {
 						keySerVar := fmt.Sprintf("%v", varKey)
 						nsv := NewServerVariable()
@@ -74,6 +74,30 @@ func (value *Server) SetValues(v interface{}) *Server {
 						}
 					}
 					value.Variables = msv
+				default:
+				}
+			}
+			if keyString == "security" {
+				switch securityVal := val.(type) {
+				case map[interface{}]interface{}:
+					mapSecVal := make(map[string][]string)
+					for varKey, varVal := range securityVal {
+						keySerVar := fmt.Sprintf("%v", varKey)
+
+						_, Ok := mapSecVal[keySerVar]
+						if !Ok {
+							sliceListSec := make([]string, 0)
+							switch listSec := varVal.(type) {
+							case []interface{}:
+								for _, strSecVal := range listSec {
+									sliceListSec = append(sliceListSec, fmt.Sprintf("%v", strSecVal))
+								}
+							default:
+							}
+							mapSecVal[keySerVar] = sliceListSec
+						}
+					}
+					value.Security = mapSecVal
 				default:
 				}
 			}
@@ -127,7 +151,3 @@ func (value *ServerVariable) SetValues(v interface{}) *ServerVariable {
 
 	return value
 }
-
-// type SecurityRequirement struct {
-// 	Name map[string][]string
-// }

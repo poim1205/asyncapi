@@ -142,4 +142,73 @@ var _ = Describe("Components", func() {
 			})
 		})
 	})
+	Context("MapComponents interface", func() {
+		var (
+			mapSecScheme          map[string]*asyncapi2.SecurityScheme
+			mapSecSchemeInterface map[interface{}]interface{}
+		)
+		BeforeEach(func() {
+			mapSecSchemeInterface = make(map[interface{}]interface{})
+			yamlSecSchemeByte := []byte(`securitySchemes:
+  saslScram:
+    type: scramSha256
+    description: Provide your username and password for SASL/SCRAM authentication
+  myAuth:
+    type: oauth2
+    flows:
+      implicit:
+        authorizationUrl: https://example.com/api/oauth/dialog
+        scopes:
+          write:pets: modify pets in your account
+          read:pets: read your pets
+      authorizationCode:
+        authorizationUrl: https://example.com/api/oauth/dialog
+        tokenUrl: https://example.com/api/oauth/token
+        scopes:
+          write:pets: modify pets in your account
+          read:pets: read your pets`)
+
+			err := yaml.Unmarshal(yamlSecSchemeByte, &mapSecSchemeInterface)
+			Expect(err).ShouldNot(HaveOccurred())
+
+			switch mapSecuritySchemes := mapSecSchemeInterface["securitySchemes"].(type) {
+			case map[interface{}]interface{}:
+				secSchemeMap := make(map[string]*asyncapi2.SecurityScheme)
+				for key, mapval := range mapSecuritySchemes {
+					keySecSchemeStr := fmt.Sprintf("%v", key)
+					_, Ok := secSchemeMap[keySecSchemeStr]
+					if !Ok {
+						secScheme := asyncapi2.NewSecurityScheme()
+						secSchemeMap[keySecSchemeStr] = secScheme.SetValues(mapval)
+					}
+					mapSecScheme = secSchemeMap
+				}
+			default:
+			}
+		})
+		When("NewSecurityScheme is filled with a map structure", func() {
+			It("should return a structure of type SecurityScheme", func() {
+
+				Expect(fmt.Sprintf("%T", mapSecScheme["saslScram"])).Should(Equal("*asyncapi2.SecurityScheme"))
+			})
+		})
+		When("MapSecScheme is filled with a map structure", func() {
+			It("should return a message named `saslScram`", func() {
+
+				Expect(mapSecScheme["saslScram"].Type).Should(Equal("scramSha256"))
+			})
+		})
+		When("MapSecScheme is filled with a map structure of type oauth2", func() {
+			It("should return a message named `myAuth`", func() {
+				_, Ok := mapSecScheme["myAuth"]
+				Expect(Ok).Should(Equal(true))
+			})
+			It("should return a pointer to a flow structure", func() {
+				Expect(fmt.Sprintf("%T", mapSecScheme["myAuth"].Flows)).Should(Equal("*asyncapi2.OAuthFlows"))
+			})
+			It("should return a field `write:pets` with a value of `modify pets in your account`", func() {
+				Expect(mapSecScheme["myAuth"].Flows.AuthorizationCode.Scopes["write:pets"]).Should(Equal("modify pets in your account"))
+			})
+		})
+	})
 })

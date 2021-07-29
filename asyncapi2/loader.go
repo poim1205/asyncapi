@@ -22,12 +22,22 @@ func (l *Loader) LoadFromFile(fullFilePath string) (*T, error) {
 		return nil, fmt.Errorf("Error loading the file: %s", fullFilePath)
 	}
 
+	async, err := l.LoadFromData(byteSlice)
+	if err != nil {
+		return nil, fmt.Errorf("Error loading the file: %s with error %s", fullFilePath, err.Error())
+	}
+
+	return async, nil
+}
+
+func (l *Loader) LoadFromData(byteSlice []byte) (*T, error) {
+
 	mapAsyncApi := make(map[string]interface{})
-	err = yaml.Unmarshal(byteSlice, mapAsyncApi)
+	err := yaml.Unmarshal(byteSlice, mapAsyncApi)
 	if err != nil {
 		err = json.Unmarshal(byteSlice, &mapAsyncApi)
 		if err != nil {
-			return nil, fmt.Errorf("Error un-marshalling the file: %s", fullFilePath)
+			return nil, fmt.Errorf("Error un-marshalling byte slice")
 		}
 	}
 
