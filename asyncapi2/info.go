@@ -5,8 +5,8 @@ import (
 )
 
 type Info struct {
-	Title          string // required
-	Version        string // required
+	Title          string `validate:"required"`
+	Version        string `validate:"required"`
 	Description    string
 	TermsOfService string
 	Contact        *Contact
@@ -52,8 +52,8 @@ func (value *Info) SetValues(v interface{}) *Info {
 
 type Contact struct {
 	Name  string
-	Url   string
-	Email string
+	Url   string `validate:"url"`
+	Email string `validate:"email"`
 }
 
 func NewContact() *Contact {
@@ -85,7 +85,7 @@ func (value *Contact) SetValues(v interface{}) *Contact {
 
 type License struct {
 	Name string
-	Url  string
+	Url  string `validate:"url"`
 }
 
 func NewLicense() *License {

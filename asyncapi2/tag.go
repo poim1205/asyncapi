@@ -23,15 +23,8 @@ func (t Tags) SetValues(v interface{}) Tags {
 	return t
 }
 
-func (ts Tags) PrintTags(indentString string) {
-	fmt.Printf("%stags:\n", indentString)
-	for _, t := range ts {
-		t.PrintTag(indentString)
-	}
-}
-
 type Tag struct {
-	Name         string
+	Name         string `validate:"required"`
 	Description  string
 	ExternalDocs *ExternalDocs
 }
@@ -59,12 +52,4 @@ func (value *Tag) SetValues(v interface{}) *Tag {
 	default:
 	}
 	return value
-}
-
-func (value *Tag) PrintTag(indentString string) {
-	fmt.Printf("%s- name: %s", indentString, value.Name)
-	fmt.Printf("%s%sdescription: %s", indentString, INDENT, value.Description)
-	// if value.ExternalDocs != nil {
-	// 	value.ExternalDocs.PrintExternalDocs(fmt.Sprintf("%s%s", indentString, INDENT))
-	// }
 }

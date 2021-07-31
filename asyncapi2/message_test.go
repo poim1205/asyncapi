@@ -210,7 +210,7 @@ var _ = Describe("CorrelationId", func() {
 		When("NewCorrelationId is filled with a map structure", func() {
 			It("should return a pointer to a structure of type CorrelationId", func() {
 
-				Expect(fmt.Sprintf("%T", mapCorrelationId)).Should(Equal("*asyncapi2.CorrelationId"))
+				Expect(fmt.Sprintf("%T", mapCorrelationId)).Should(Equal("*asyncapi2.CorrelationID"))
 			})
 		})
 		When("MapMessageTraits is filled with a map structure", func() {
