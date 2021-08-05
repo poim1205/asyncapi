@@ -81,7 +81,8 @@ func (c *Components) SetValues(v interface{}) *Components {
 						keyParameterStr := fmt.Sprintf("%v", key)
 						_, Ok := paramMap[keyParameterStr]
 						if !Ok {
-							paramMap[keyParameterStr] = NewParameter(mapval)
+							newParam := NewParameter()
+							paramMap[keyParameterStr] = newParam.SetValues(mapval)
 						}
 					}
 					c.Parameters = paramMap

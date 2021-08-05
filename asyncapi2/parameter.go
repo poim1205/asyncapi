@@ -17,20 +17,13 @@ func (p Parameters) SetValues(v interface{}) Parameters {
 			keyString := fmt.Sprintf("%v", key)
 			_, Ok := p[keyString]
 			if !Ok {
-				p[keyString] = NewParameter(val)
+				newParam := NewParameter()
+				p[keyString] = newParam.SetValues(val)
 			}
 		}
 	default:
 	}
 	return p
-}
-
-func (ps Parameters) PrintParameters(indentString string) {
-	fmt.Printf("%sparameters:\n", indentString)
-	for k, v := range ps {
-		fmt.Printf("%s%s%s:\n", indentString, INDENT, k)
-		v.PrintParameter(fmt.Sprintf("%s%s", indentString, INDENT))
-	}
 }
 
 type Parameter struct {
@@ -40,8 +33,11 @@ type Parameter struct {
 	Location    string
 }
 
-func NewParameter(v interface{}) *Parameter {
-	p := Parameter{}
+func NewParameter() *Parameter {
+	return &Parameter{}
+}
+
+func (p *Parameter) SetValues(v interface{}) *Parameter {
 
 	switch arrayVal := v.(type) {
 	case map[interface{}]interface{}:
@@ -63,12 +59,5 @@ func NewParameter(v interface{}) *Parameter {
 		}
 	default:
 	}
-
-	return &p
-}
-
-func (value *Parameter) PrintParameter(indentString string) {
-	fmt.Printf("%s%s$ref: %s\n", indentString, INDENT, value.Ref)
-	fmt.Printf("%s%sdescription: %s\n", indentString, INDENT, value.Description)
-	fmt.Printf("%s%slocation: %s\n", indentString, INDENT, value.Location)
+	return p
 }

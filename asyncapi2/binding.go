@@ -82,8 +82,8 @@ func (b OperationBindings) SetValues(v interface{}) OperationBindings {
 }
 
 type HttpOperationBinding struct {
-	Type           string
-	Method         string
+	Type           string `validate:"required"`
+	Method         string `validate:"oneof=GET POST PUT PATCH DELETE HEAD OPTIONS CONNECT TRACE"`
 	Query          *Schema
 	BindingVersion string
 }
@@ -155,11 +155,11 @@ func (h *KafkaOperationBinding) SetOperationBindingValues(v interface{}) Operati
 }
 
 type AmqpOperationBinding struct {
-	Expiration     int
+	Expiration     int `validate:"gte=0"`
 	UserId         string
 	Cc             []string
 	Priority       int
-	DeliveryMode   int
+	DeliveryMode   int `validate:"oneof=1 2"`
 	Mandatory      bool
 	Bcc            []string
 	ReplyTo        string
@@ -252,7 +252,7 @@ func (a *AmqpOperationBinding) SetOperationBindingValues(v interface{}) Operatio
 }
 
 type MqttOperationBinding struct {
-	Qos            int
+	Qos            int `validate:"oneof=0 1 2"`
 	Retain         bool
 	BindingVersion string
 }
@@ -553,7 +553,7 @@ func (b ChannelBindings) SetValues(v interface{}) ChannelBindings {
 }
 
 type WsChannelBinding struct {
-	Method         string
+	Method         string `validate:"oneof=GET POST"`
 	Query          *Schema
 	Headers        *Schema
 	BindingVersion string
@@ -593,7 +593,7 @@ func (cb *WsChannelBinding) SetChannelBindingValues(v interface{}) ChannelBindin
 }
 
 type AmqpChannelBinding struct {
-	Is             string
+	Is             string `validate:"oneof=queue routingKey"`
 	ChannelSpec    map[string]AmqpChannelSpecification
 	BindingVersion string
 }
@@ -639,8 +639,8 @@ type AmqpChannelSpecification interface {
 }
 
 type AmqpChannelExchange struct {
-	Name       string
-	Type       string
+	Name       string `validate:"max=255"`
+	Type       string `validate:"oneof=topic direct fanout default headers"`
 	Durable    bool
 	AutoDelete bool
 	VHost      string
@@ -687,7 +687,7 @@ func (q *AmqpChannelExchange) SetAmqpChannelSpecValues(v interface{}) AmqpChanne
 }
 
 type AmqpChannelQueue struct {
-	Name       string
+	Name       string `validate:"max=255"`
 	Durable    bool
 	Exclusive  bool
 	AutoDelete bool
@@ -739,7 +739,7 @@ type IbmmqChannelSpecification interface {
 }
 
 type IbmmqChannelQueue struct {
-	ObjectName    string
+	ObjectName    string `validate:"required"`
 	IsPartitioned bool
 	Exclusive     bool
 }
@@ -914,7 +914,7 @@ func (b ServerBindings) SetValues(v interface{}) ServerBindings {
 
 type MqttLastWill struct {
 	Topic   string
-	Qos     int
+	Qos     int `validate:"oneof=0 1 2"`
 	Message string
 	Retain  bool
 }

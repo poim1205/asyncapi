@@ -1,23 +1,21 @@
 package asyncapi2
 
-const (
-	INDENT = "  "
-)
-
 type T struct {
-	Asyncapi           string        // validate format #digit#.#digit#.#digit#
-	ID                 string        // not required
-	Info               *Info         // required
-	Servers            Servers       // not required
-	DefaultContentType string        // list of content type
-	Channels           Channels      // required
-	Components         *Components   // not required
-	Tags               Tags          // not required
-	ExternalDocs       *ExternalDocs // not required
+	Asyncapi           string `validate:"required,version"`
+	ID                 string
+	Info               *Info `validate:"required"`
+	Servers            Servers
+	DefaultContentType string
+	Channels           Channels `validate:"required"`
+	Components         *Components
+	Tags               Tags
+	ExternalDocs       *ExternalDocs
 }
 
 func NewAsyncAPI() *T {
 	return &T{}
 }
 
-// TODO: implement print T struct
+func (t *T) Validate() error {
+	return ValidateStruct(t)
+}

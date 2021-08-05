@@ -3,6 +3,7 @@ module github.com/poim1205/asyncapi
 go 1.16
 
 require (
+	github.com/go-playground/validator/v10 v10.8.0
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.14.0
 	github.com/sirupsen/logrus v1.8.1

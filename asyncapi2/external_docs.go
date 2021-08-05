@@ -6,7 +6,7 @@ import (
 
 type ExternalDocs struct {
 	Description string
-	URL         string
+	URL         string `validate:"required"`
 }
 
 func NewExternalDocs() *ExternalDocs {

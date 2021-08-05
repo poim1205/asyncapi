@@ -29,14 +29,13 @@ func (s Servers) SetValues(v interface{}) Servers {
 }
 
 type Server struct {
-	Url             string // required
-	Protocol        string // required
+	Url             string `validate:"required,url"`
+	Protocol        string `validate:"required"`
 	ProtocolVersion string
 	Description     string
 	Variables       map[string]*ServerVariable
-	// TODO: Add SecurityRequirements for Server object
-	Security map[string][]string
-	Bindings ServerBindings
+	Security        map[string][]string
+	Bindings        ServerBindings
 }
 
 func NewServer() *Server {
